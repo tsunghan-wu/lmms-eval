@@ -373,28 +373,40 @@ def amber_g_process_result(doc, result):
         'question_id': question_id,
         'text': pred_text
     }
+    # import ipdb; ipdb.set_trace()
     
     # Initialize temporary metrics
     temp_metrics = _METRICS_INIT.copy()
-    
     if gt_item['type'] == 'generative':
         process_generative_task(data_item, gt_item, _ASSOCIATION, _HALLUCINATION_WORDS,
                                 _SAFE_WORDS, SIMILARITY_THRESHOLD, temp_metrics)
         
+        # Extract only relevant metrics for each metric type
+        chair_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('chair_')}
+        cover_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('safe_cover_')}
+        hal_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('non_hallu_')}
+        cog_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('hallu_cover_')}
+        
         return {
-            'amber_chair': temp_metrics.copy(),
-            'amber_cover': temp_metrics.copy(),
-            'amber_hal': temp_metrics.copy(),
-            'amber_cog': temp_metrics.copy(),
+            'amber_chair': chair_metrics,
+            'amber_cover': cover_metrics,
+            'amber_hal': hal_metrics,
+            'amber_cog': cog_metrics,
         }
     else:
         process_discriminative_task(data_item, gt_item, temp_metrics)
         
+        # Extract only relevant metrics for each metric type
+        chair_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('chair_')}
+        cover_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('safe_cover_')}
+        hal_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('non_hallu_')}
+        cog_metrics = {k: v for k, v in temp_metrics.items() if k.startswith('hallu_cover_')}
+        
         return {
-            'amber_chair': temp_metrics,
-            'amber_cover': temp_metrics,
-            'amber_hal': temp_metrics,
-            'amber_cog': temp_metrics,
+            'amber_chair': chair_metrics,
+            'amber_cover': cover_metrics,
+            'amber_hal': hal_metrics,
+            'amber_cog': cog_metrics,
         }
 
 
